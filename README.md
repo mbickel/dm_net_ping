@@ -1,19 +1,29 @@
-# TrackMe - Server side http/tls tracking demo in go
+# dm_net_ping, based on TrackMe - Server side http/tls tracking demo in go
 
-TrackMe is a custom, low-level http/1 and h2 server, that responds with the fine details about the request made.
+dm_net_ping (TrackMe) is a custom, low-level http/1 and h2 server, that responds with the fine details about the request made.
 
 It returns the ja3, akamai h2 fingerprint, header + header order, h2 frames, and much more.
 
-## Generating the certificates and config
+## Certificates and config
 
-You first need to generate the certificate.pem and the key.pem files.
+You first need to generate the certificate.pem and the key.pem files. In this setup, I used `acme.sh` to generate
+and auto-renew the certificates.
+
+Install it (as root), with:
 
 ```bash
-$ mkdir certs
-$ openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/chain.pem -sha256 -days 365 -nodes
+curl https://get.acme.sh | sh -s email=m.bickel@listflix.de
 ```
 
-Then, you need to copy the example config (and maybe edit it)
+As your main user (mbickel), create a `certs` directory. Then adjust the cronjob (as root) to the following entry:
+
+```bash
+18 0 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null && cp /root/.acme.sh/proxy.biwex.de_ecc/fullchain.cer /home/mbickel/certs/ && cp /root/.acme.sh/proxy.biwex.de_ecc/proxy.biwex.de.key /home/mbickel/certs/ && chown mbickel:mbickel /home/mbickel/certs/*
+```
+
+This will renew the certificates, copy it to your users `cert` directory and set the correct access rights.
+
+Then, you need to copy the example config. Skip this, if `config.json` already exists and looks correct.
 
 ```bash
 $ cp config.example.json config.json
@@ -24,8 +34,10 @@ $ nano config.json
 ## Running it (Docker)
 
 ```bash
-$ docker build -t "trackme:Dockerfile" .
-$ docker run -p 80:80 -p 443:443 "trackme:Dockerfile"
+$ docker build -t "dm_net_ping:Dockerfile" .
+
+# don't forward port 80 -> this is needed to renew the certs
+$ docker run -p 443:443 -v /home/mbickel/certs/:/app/certs "dm_net_ping:Dockerfile"
 ```
 
 ## Running it (Without Docker)
@@ -89,28 +101,6 @@ Returns only the TLS data
 ### /api/clean
 
 Returns only the different fingerprints (akamai-fp+ja3)
-
-### /api/request-count
-
-Returns the total request count the database captured. Only works when connected to a database.
-
-### /api/search-ja3
-
-Param: `?by=<ja3>`
-
-Returns the most seen other identifiers (user-agent, h2, peetprint) that were seen together with this identifier. Only works when connected to a database.
-
-### /api/search-h2
-
-Param: `?by=<akamai-fp>`
-
-Returns the most seen other identifiers (user-agent, JA3, peetprint) that were seen together with this identifier. Only works when connected to a database.
-
-### /api/search-peetprint
-
-Param: `?by=<peetprint>`
-
-Returns the most seen other identifiers (user-agent, h2, JA3) that were seen together with this identifier. Only works when connected to a database.
 
 ## Docker
 

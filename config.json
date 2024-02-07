@@ -1,0 +1,12 @@
+{
+  "log_to_db": false,
+  "tls_port": "443",
+  "http_port": "80",
+  "cert_file": "certs/fullchain.cer",
+  "key_file": "certs/proxy.biwex.de.key",
+  "host": "0.0.0.0",
+  "mongoURL": "",
+  "mongo_database": "dm_net_ping",
+  "mongo_collection": "requests",
+  "mongo_log_ips": false
+}

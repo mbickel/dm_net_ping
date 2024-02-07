@@ -1,0 +1,11 @@
+*.zip
+*.key
+*.pem
+*.crt
+certs/
+main
+TrackMe
+.DS_Store
+requests-db/
+config.json
+.idea

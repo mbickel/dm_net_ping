@@ -4,7 +4,7 @@
   "http_port": "80",
   "cert_file": "certs/fullchain.cer",
   "key_file": "certs/proxy.biwex.de.key",
-  "host": "0.0.0.0",
+  "host": "proxy.biwex.de",
   "mongoURL": "",
   "mongo_database": "dm_net_ping",
   "mongo_collection": "requests",

@@ -193,12 +193,12 @@ func respondToHTTP1(conn net.Conn, resp Response) {
 	// log.Println("Request:", resp.ToJson())
 	// log.Println(len(resp.ToJson()))
 
-	res1, ctype := Router(resp.path, resp)
+	res1, ctype, resCode := Router(resp.path, resp)
 
-	res := "HTTP/1.1 200 OK\r\n"
+	res := fmt.Sprintf("HTTP/1.1 %d OK\r\n", resCode)
 	res += "Content-Length: " + fmt.Sprintf("%v\r\n", len(res1))
 	res += "Content-Type: " + ctype + "; charset=utf-8\r\n"
-	res += "Server: TrackMe\r\n"
+	res += "Server: dm_net_ping\r\n"
 	res += "\r\n"
 	res += string(res1)
 	res += "\r\n\r\n"
@@ -296,12 +296,12 @@ func handleHTTP2(conn net.Conn, tlsFingerprint TLSDetails) {
 		TLS: tlsFingerprint,
 	}
 
-	res, ctype := Router(path, resp)
+	res, ctype, resCode := Router(path, resp)
 
 	// Prepare HEADERS
 	hbuf := bytes.NewBuffer([]byte{})
 	encoder := hpack.NewEncoder(hbuf)
-	encoder.WriteField(hpack.HeaderField{Name: ":status", Value: "200"})
+	encoder.WriteField(hpack.HeaderField{Name: ":status", Value: fmt.Sprintf("%d", resCode)})
 	encoder.WriteField(hpack.HeaderField{Name: "server", Value: "dm_net_ping"})
 	encoder.WriteField(hpack.HeaderField{Name: "content-length", Value: strconv.Itoa(len(res))})
 	encoder.WriteField(hpack.HeaderField{Name: "content-type", Value: ctype})

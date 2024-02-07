@@ -18,7 +18,7 @@ func cleanIP(ip string) string {
 }
 
 // Router returns bytes and content type that should be sent to the client
-func Router(path string, res Response) ([]byte, string) {
+func Router(path string, res Response) ([]byte, string, int) {
 	res.TCPIP = TCPFingerprints[cleanIP(res.IP)]
 	res.TLS.JA4 = CalculateJa4(res.TLS)
 	// res.Donate = "Please consider donating to keep this API running."
@@ -39,5 +39,5 @@ func Router(path string, res Response) ([]byte, string) {
 	}
 	// 404
 	// b, _ := ReadFile("static/404.html")
-	return []byte("{\"msg\": \"Not Found\"}"), "application/json"
+	return []byte("{\"msg\": \"Not Found\"}"), "application/json", 404
 }

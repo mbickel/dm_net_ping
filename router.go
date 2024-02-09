@@ -30,8 +30,14 @@ func Router(path string, res Response) ([]byte, string, int) {
 		SaveRequest(res)
 	}
 
-	u, _ := url.Parse("https://proxy.biwex.de" + path)
-	m, _ := url.ParseQuery(u.RawQuery)
+	u, err := url.Parse("https://proxy.biwex.de" + path)
+	if err != nil {
+		return []byte("{\"msg\": \"Not Implemented\"}"), "application/json", 501
+	}
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return []byte("{\"msg\": \"Not Implemented\"}"), "application/json", 501
+	}
 
 	paths := getAllPaths()
 	if val, ok := paths[u.Path]; ok {
